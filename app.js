@@ -8,7 +8,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const multerconfig = require("./config/multerconfig");
+const upload = require("./config/multerconfig");
 
 
 app.set("view engine","ejs");
@@ -24,6 +24,18 @@ app.get('/', function(req,res){
 
 app.get('/login', function(req,res){
     res.render("login");
+});
+
+app.get('/profile/upload', function(req,res){
+    res.render("profileupload");
+});
+
+app.post('/upload', isloggedin, upload.single("image"), async function(req,res){
+    let user = await userModel.findOne({email: req.user.email});
+    user.profilepic = req.file.filename;
+    await user.save();
+
+    res.redirect("/profile");
 });
 
 app.get('/profile', isloggedin,  async function(req,res){
